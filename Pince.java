@@ -25,7 +25,7 @@ public class Pince{
 		   */
 		
 		m3 = new EV3LargeRegulatedMotor(MotorPort.D);
-		m3.setSpeed((int) m3.getMaxSpeed());
+		m3.setSpeed((int) (m3.getMaxSpeed()*0.8));
 	}
 	
 	
@@ -91,6 +91,34 @@ public class Pince{
 		m3.stop();
 	}
 	
+	public void attraper() {
+		m3.resetTachoCount();
+		while(m3.getTachoCount() < 515) {
+			m3.forward();
+			System.out.println(m3.getTachoCount());
+			if(tachobug() == true) {
+				m3.stop();
+				break;
+			}
+		}
+			System.out.println(m3.getTachoCount());
+			m3.stop();
+			int value = -1*m3.getTachoCount();
+			
+			while(m3.getTachoCount() > value) {
+				m3.backward();
+				System.out.println(m3.getTachoCount());
+				if(tachobug() == true) {
+					m3.stop();
+					break;
+				}
+			}
+				System.out.println(m3.getTachoCount());
+				m3.stop();
+	}
+	
+		
+	
 	public void ouvrirA() {
 		 /**
 		   * ouvre la pince de 500 tour
@@ -104,6 +132,7 @@ public class Pince{
 				break;
 			}
 		}
+		System.out.println(m3.getTachoCount());
 		m3.stop();
 	}
 	
@@ -112,14 +141,16 @@ public class Pince{
 		   * ferme la pince de 500 tour
 		   */
 		m3.resetTachoCount();
-		while(m3.getTachoCount() > -550) {
+		while(m3.getTachoCount() > -490) {
 			m3.backward();
 			System.out.println(m3.getTachoCount());
 			if(tachobug() == true) {
 				m3.stop();
 				break;
 			}
+			
 		}
+		System.out.println(m3.getTachoCount());
 		m3.stop();
 	}
 		
