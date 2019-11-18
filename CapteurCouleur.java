@@ -26,9 +26,9 @@ public class CapteurCouleur extends EV3ColorSensor {
 
 	static SampleProvider average;
 
-	/*public enum Couleur {
-		LUNDI, MARDI, MERCREDI, JEUDI, VENDREDI, SAMEDI, DIMANCHE;
-	}*/
+	public enum Couleur {
+		Jaune, Vert, Gris, Noir, Rouge, Blanc, Bleu;
+	}
 	
 	public CapteurCouleur(Port p) {
 		super(p);
@@ -37,12 +37,8 @@ public class CapteurCouleur extends EV3ColorSensor {
 	//initialise les vecteurs
 	public void init() throws IOException { 
 
-
-		//initialisation du port
-
-
 		//ouverture du flux en lecture
-		FileInputStream input = new FileInputStream("colorFinal.txt"); 
+		FileInputStream input = new FileInputStream("colorTESTFINAL.txt"); 
 		Properties prop = new Properties();
 
 		try{
@@ -53,11 +49,8 @@ public class CapteurCouleur extends EV3ColorSensor {
 
 	//renvoie chaque ligne du fichier colorFinal sous forme de chaine de caractère
 		String blue = prop.getProperty("blue");
-		//System.out.println("blue is" +blue);
 		String red = prop.getProperty("red");
-		//System.out.println("red is" +red);
 		String green = prop.getProperty("green");
-		//System.out.println("green is" +green);
 		String black = prop.getProperty("black");
 		String white = prop.getProperty("white");
 		String gray = prop.getProperty("gray");
@@ -107,7 +100,7 @@ public class CapteurCouleur extends EV3ColorSensor {
 	//METHODE RENVOIE LE INT CORRESPONDANT A LA COULEUR
 	
 	//public Couleur getColor() {
-	public int getColor() {
+	public Couleur getColor() {
 		
 	//récupération des données issues du capteur
 		float[] sample = new float[average.sampleSize()]; //création d'un tableau d'échantillons 
@@ -115,39 +108,19 @@ public class CapteurCouleur extends EV3ColorSensor {
 		//Button.ENTER.waitForPressAndRelease();
 		average.fetchSample(sample, 0);
 		double minscal = Double.MAX_VALUE;
-		String color = "";
+		Couleur color = null ;
 
 
 		//création d'un tableau contenant les scalaires des couleurs
 
-		double scalaireBlue = CapteurCouleur.scalaire(sample, tabDoubleBlue);
-		//System.out.println("saclaire bleu=" +scalaireBlue);
-		//	Button.waitForAnyPress();
-
+		double scalaireBlue = CapteurCouleur.scalaire(sample, tabDoubleBlue);		
 		double scalaireRed = CapteurCouleur.scalaire(sample, tabDoubleRed);
-		//System.out.println("saclaire rouge=" +scalaireRed);
-		//Button.waitForAnyPress();
-
 		double scalaireGreen = CapteurCouleur.scalaire(sample, tabDoubleGreen);
-		//System.out.println("saclaire vert=" +scalaireGreen);
-		//Button.waitForAnyPress();
-
 		double scalaireBlack = CapteurCouleur.scalaire(sample, tabDoubleBlack);
-		//System.out.println("saclaire noir=" +scalaireBlack);
-		//Button.waitForAnyPress();
-
 		double scalaireWhite = CapteurCouleur.scalaire(sample, tabDoubleWhite);
-		//System.out.println("saclaire blanc=" +scalaireWhite);
-		//Button.waitForAnyPress();
-
 		double scalaireGray = CapteurCouleur.scalaire(sample, tabDoubleGray);
-		//System.out.println("saclaire gris=" +scalaireGray);
-		//Button.waitForAnyPress();
-
 		double scalaireYellow = CapteurCouleur.scalaire(sample, tabDoubleYellow);
-		//System.out.println("saclaire jaune=" +scalaireYellow);
-		//Button.waitForAnyPress();
-
+		
 
 		tabScalaires[0]=scalaireBlue;
 		tabScalaires[1]=scalaireRed;
@@ -159,37 +132,21 @@ public class CapteurCouleur extends EV3ColorSensor {
 
 		
 		//faire un type énuméré
-		String[] tabcolString={"Blue","Red","Green","Black","White","Gray","Yellow"};
-
+		Couleur[] tabcolString={Couleur.Bleu,Couleur.Rouge,Couleur.Vert,Couleur.Noir,Couleur.Blanc,Couleur.Gris,Couleur.Jaune};
 		
-		int j = 0;
-
+		
+		//calcule le scalaire en fonction du fichier de calibration et des données captées
+		
 		for(int i=0; i<tabScalaires.length ;i++) {
-		//	System.out.println("i="+i);
 			if (tabScalaires[i]<minscal) {
 				minscal=tabScalaires[i];
 				color = tabcolString[i];
-				j = i;
-				//	System.out.println("col:"+color);
-				//Button.waitForAnyPress();
-				//System.out.println("i="+i);
-				//Button.waitForAnyPress();
-				//System.out.println("minscal="+minscal);
-				//Button.waitForAnyPress();
 		}  	
-		System.out.println(tabcolString[i]+"pas inferieur à "+color+ "|ou j="+j);
-		Button.waitForAnyPress();
-
-
 	}
 		
-		//créer un tableau correspondant aux couleurs
-		int[] tabcol = {0,1,2,3,4,5,6};
-
+		
 		//retourne le numéro correspondant à la couleur
-		System.out.println("couleur finale="+tabcolString[j]);
-		Button.waitForAnyPress();
-		return tabcol[j];
+		return color;
 
 	}
 
@@ -204,11 +161,10 @@ public class CapteurCouleur extends EV3ColorSensor {
 
 
 	public static void main(String[]args) throws IOException {
-		//CalibrationCapteurCouleur calibration = new CalibrationCapteurCouleur();
+		//CalibrationCapteurCouleur1 calibration = new CalibrationCapteurCouleur1();
 		
 		Port port = LocalEV3.get().getPort("S2");
 		CapteurCouleur colorSensor = new CapteurCouleur(port);
-		//colorSensor.close();
 
 		average = new MeanFilter(colorSensor.getRGBMode(), 1);
 		colorSensor.setFloodlight(Color.WHITE);
