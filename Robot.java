@@ -1,31 +1,33 @@
+package robotv2;
+
 import lejos.utility.Delay;
 
 public class Robot {
-	public CapteurUltrason yeux = new CapteurUltrason("S3");
-	public MoteursRoues roue = new MoteursRoues();
-	public enum ETAT {ROTATION_RECHERCHE, AVANCER_VERS, CORRECTION_TRAJECTOIRE, ATTRAPER_PALET;}
+	private MR roues = new MR();
+	private CU yeux = new CU();
+	private CT contact = new CT();
+	private CC zone = new CC();
+	private MP pince = new MP();
 	
-	public TypeLastDistance AvancerVers() {//avance vers un palais ou mur et quand est sur de ce qui est devant lui, s'arrete et renvoi l'objet
+	public TypeLastDistance avancerVers() {//avance vers un palais ou mur et quand est sur de ce qui est devant lui, s'arrete et renvoi l'objet
 		TypeLastDistance type = new TypeLastDistance();
 		try {
-		
-		
 		if(yeux.detectInfinity()==1) {//ca veut dire qu'il detecte quelque chose
 			float PremDist=yeux.getDistance();
-			roue.avancer(); //avance et s'arrete pas 
-			while(roue.getEnMouvement()) {
+			roues.avancer(); //avance et s'arrete pas 
+			while(roues.getEnMouvement()) {
 						float DeuxDistance=yeux.getDistance();
 						if(DeuxDistance<32) {
 							type.set('m', PremDist);
-							roue.arret();
+							roues.arret();
 						}
 						else if(DeuxDistance>PremDist && PremDist<33) {
 							type.set('p', PremDist);
-							roue.arret();
+							roues.arret();
 						}
 						else if(DeuxDistance>PremDist && PremDist>33) {
 							type.set('d', PremDist);
-							roue.arret();
+							roues.arret();
 						}
 						PremDist=DeuxDistance;
 						Delay.msDelay(100);;//attend avant de relancer le while pour eviter de boucler dans rien
@@ -44,10 +46,7 @@ public class Robot {
 		return type; 
 }
 	//tourner pour detect palais
-	
-
-	
-	public void RotationRecherche() {
+	public void rotationRecherche() {
 		try {
 			double tab[]=new double[1000];
 			//instruction de touner
@@ -56,8 +55,8 @@ public class Robot {
 			}
 			else {
 				int compteur=0; //donnera le nombre de valeur effectiveou un array avec des add comme ca direct
-				roue.tournerD(360);
-				while(roue.getEnMouvement()) {
+				roues.tournerD(360);
+				while(roues.getEnMouvement()) {
 					//je met dans mon tableau les différence de distance
 					tab[compteur]=yeux.getDistance();
 					//mettre un temps de 5millisec pour pas avoir trop de données rajout d'un compteur
@@ -75,7 +74,7 @@ public class Robot {
 					}
 				}
 				//donc indice de tableau par rapport au minimum, le convertir en angle
-				roue.tournerD(180/compteur*indice);
+				roues.tournerD(180/compteur*indice);
 				//180 car que des demi tour pour détecter palais, 
 				//on lance tourner moteur de l'angle et avancer!
 			}
@@ -86,18 +85,30 @@ public class Robot {
 		}
 	}
 
-	public TypeLastDistance CorrectionTrajectoire(float lastDistance) {
-		TypeLastDistance type = new TypeLastDistance();
+	public TypeLastDistance correctionTrajectoire(TypeLastDistance type) {
+		float lastDistance = type.getLastDistance();
 		float newDistance;
-		roue.tournerD(5);
+		roues.tournerD(5);
 		newDistance=yeux.getDistance();
 		if(newDistance<=lastDistance+2&&newDistance>=lastDistance-2) type.set('a', newDistance);
 		else {
-			roue.tournerG(10);
+			roues.tournerG(10);
 			newDistance=yeux.getDistance();
 			if(newDistance<=lastDistance+2&&newDistance>=lastDistance-2) type.set('a', newDistance);
 		}
 		return type;
 	}
 	
+	public void premierPalet() {
+		
+	}
+
+	public void attraperPaler() {
+		
+	}
+	
+	public void deposerPaletEnBut() {
+		
+	}
 }
+
