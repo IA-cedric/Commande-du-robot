@@ -13,17 +13,17 @@ import lejos.robotics.SampleProvider;
 import lejos.robotics.filter.MeanFilter;
 
 public class CC extends EV3ColorSensor {
-	double[] tabDoubleBlue = new double[3];
-	double[] tabDoubleRed = new double[3];
-	double[] tabDoubleGreen = new double[3];
-	double[] tabDoubleBlack = new double[3];
-	double[] tabDoubleWhite = new double[3];
-	double[] tabDoubleGray = new double[3];
-	double[] tabDoubleYellow = new double[3];
+	private double[] tabDoubleBlue = new double[3];
+	private double[] tabDoubleRed = new double[3];
+	private double[] tabDoubleGreen = new double[3];
+	private double[] tabDoubleBlack = new double[3];
+	private double[] tabDoubleWhite = new double[3];
+	private double[] tabDoubleGray = new double[3];
+	private double[] tabDoubleYellow = new double[3];
 	
-	double[] tabScalaires = new double[7];
+	private double[] tabScalaires = new double[7];
 
-	static SampleProvider average;
+	private SampleProvider average = new MeanFilter(getRGBMode(), 1);
 
 	public enum Couleur {
 		Jaune, Vert, Gris, Noir, Rouge, Blanc, Bleu;
@@ -31,6 +31,12 @@ public class CC extends EV3ColorSensor {
 	
 	public CC(Port p) {
 		super(p);
+		try{
+			init();
+		}catch(IOException e){
+			
+		}
+		setFloodlight(Color.WHITE);
 	}
 	
 	public CC() {
