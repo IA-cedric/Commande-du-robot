@@ -11,9 +11,15 @@ public class Test {
 		EV3 ev3brick = (EV3) BrickFinder.getLocal();
 		Keys buttons = ev3brick.getKeys();
 		boolean x = true;
+		double distance;
+		System.out.println("OK");
+		test.retablirPince();
+		test.setDirection(1);
 		while(x) {
 			if(buttons.getButtons()==Keys.ID_ENTER) {
-				System.out.println(test.attraperPalet(55.0));
+				test.setPalet(false);
+				distance=test.rotationRecherche(110.0);
+				test.attraperPalet(distance);
 			}
 			if(buttons.getButtons()==Keys.ID_DOWN)
 				x=false;

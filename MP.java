@@ -123,7 +123,7 @@ public class MP{
 		   * ouvre la pince de 500 tour
 		   */
 		m3.resetTachoCount();
-		while(m3.getTachoCount() < 800) {
+		while(m3.getTachoCount() < 805) {
 			m3.forward();
 			if(tachobug() == true) {
 				m3.stop();

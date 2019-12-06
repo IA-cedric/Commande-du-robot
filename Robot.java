@@ -1,13 +1,8 @@
 package robotv3;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
+
 import java.util.ArrayList;
 
-import lejos.hardware.BrickFinder;
-import lejos.hardware.Keys;
-import lejos.hardware.ev3.EV3;
 import lejos.utility.Delay;
 import robotv3.CC.Couleur;
 
@@ -60,14 +55,18 @@ public class Robot {
 		pince.retablir();
 	}
 	//tourner pour detect palais
-	public double rotationRecherche() {
+	public double rotationRecherche(double angleRecherche) {
 		roues.setSpeed(10);
 		try {
 			//double tab[]=new double[5000];
 			ArrayList<Double> tab = new ArrayList<Double>(0);
+			ArrayList<Double> tab2 = new ArrayList<Double>(0);
+			double angle;
+			double distance;
+			int indice=-1;
+			double min=1000;
 			//instruction de touner
-			
-				roues.tournerRecherche(110, direction);
+				roues.tournerRecherche(angleRecherche, direction);
 				while(roues.getEnMouvement()) {
 					//je met dans mon tableau les différence de distance
 					tab.add((double) yeux.getDistance());
@@ -76,17 +75,16 @@ public class Robot {
 				}
 				//mtn je trie mon tableau en dégageant les valeurs <32,5 car c'est pas 
 				//des palets et je vais vers la plus petite après
-				int indice=-1;
-				double min=1000;
+				indice=-1;
+				min=1000;
 				for(int j=0; j<tab.size();j++) {
 					if(tab.get(j)<min && tab.get(j)>32) {
 						min=tab.get(j);
 						indice=j;
 					}
 				}
-				double angle = 90.0*indice/tab.size();
-				double distance = tab.get(indice);
-				System.out.println(indice);
+				angle = angleRecherche*indice/tab.size();
+				distance = min;
 				/*BufferedWriter f;
 				String ch ="";
 				int i =0;
@@ -99,10 +97,9 @@ public class Robot {
 				}
 				f.close();*/
 				//donc indice de tableau par rapport au minimum, le convertir en angle
-				
 				System.out.println("angle : "+angle);
 				System.out.println("Vmin : "+ distance);
-				roues.tourner(360.0+angle-110.0,direction);
+				roues.tourner((angleRecherche-angle),-direction);
 				return distance;
 				//180 car que des demi tour pour détecter palais, 
 				//on lance tourner moteur de l'angle et avancer!
@@ -118,64 +115,41 @@ public class Robot {
 	}
 	
 	public void premierPalet() {
-			if (direction==1) {
-				roues.setSpeed(100);
-				roues.avancer();
-				pince.ouvrirA();
-				while(roues.getEnMouvement()) {
-					if(contact.estPresse(false)) {
-						roues.arret();
-					}
-				}
-				roues.tournerD(30);
-				pince.fermerA();
-				roues.avancer(50.0,false);
-				roues.tournerG(30);
-				roues.avancer();
-				while(roues.getEnMouvement()) {
-					if(zone.getColor()==Couleur.Blanc)
-						roues.arret();
-				}
-				pince.ouvrirA();
-				roues.reculer(20.0);
-				pince.fermerA();
-				roues.tournerD(115);
-			}else {
-				roues.setSpeed(100);
-				roues.avancer();
-				pince.ouvrirA();
-				while(roues.getEnMouvement()) {
-					if(contact.estPresse(false)) {
-						roues.arret();
-					}
-				}
-				roues.tournerG(30);
-				pince.fermerA();
-				roues.avancer(50.0,false);
-				roues.tournerD(30);
-				roues.avancer();
-				while(roues.getEnMouvement()) {
-					if(zone.getColor()==Couleur.Blanc)
-						roues.arret();
-				}
-				pince.ouvrirA();
-				roues.reculer(20.0);
-				pince.fermerA();
-				roues.tournerG(115);
+		roues.setSpeed(100);
+		roues.avancer();
+		pince.ouvrirA();
+		while(roues.getEnMouvement()) {
+			if(contact.estPresse(false)) {
+				roues.arret();
 			}
 		}
+		pince.fermerA();
+		roues.tourner(30,direction);
+		roues.avancer(50.0,false);
+		roues.tourner(30,-direction);
+		roues.avancer();
+		while(roues.getEnMouvement()) {
+			if(zone.getColor()==Couleur.Blanc) {
+				roues.arret();
+				pince.ouvrirA();
+				roues.reculer(20.0);
+				pince.fermerA();
+				roues.tourner(115, direction);
+			}
+		}
+	}
 
 	public boolean attraperPalet(double distance) {
-		roues.setSpeed(50);
-		roues.avancer(1.1*distance,true);
+		roues.setSpeed(100);
+		roues.avancer(1.3*distance,true);
 		pince.ouvrirA();
 		boolean jaunerouge = false;
 		while(roues.getEnMouvement()) {
 			if(zone.getColor()==Couleur.Blanc) {
-				roues.avancer(10.0,true);
 				roues.arret();
 				pince.fermerA();
 				System.out.print("blanc");
+				roues.reculer(distance);
 				return false;
 			}else if(contact.estPresse(false)) {
 				roues.arret();
@@ -204,29 +178,38 @@ public class Robot {
 		}
 		roues.arret();
 		pince.fermerA();
+		roues.reculer(1.3*distance);
 		System.out.print("rien");
 		return false;
 		
 	
 	}
-	public void ajustementErreur(double distance) {
-		roues.reculer(distance);
-		roues.sorienterOpposeEnBut();
-		roues.avancer(50.0, false);
+	
+	public void ajustementErreur(double distance, int cool) {
+		if(cool<4)
+			roues.sorienterOpposeEnBut();
+		else if(cool==4){
+			
+			direction=-direction;
+		}else
+			roues.sorienterVersEnBut();
+			
+		roues.avancer(30.0, false);
 		roues.tourner(115-roues.getOrientation(), direction);
 	}
+	
 	public void ajustementDPEB(Couleur c) {
 		int dir=1;
 		if((c==Couleur.Jaune&&casier==true)||c==Couleur.Rouge&&casier==false) {
 			dir=-1;
 		}
-		roues.tourner(90, dir);
+		roues.tournerSO(90, dir);
 		roues.avancer(20.0, false);
-		roues.tournerSO(80, -dir);
+		roues.tournerSO(70, -dir);
 	}
 	
-	public Couleur deposerPaletEnBut() {
-		roues.setSpeed(50);
+	public Couleur deposerPaletEnBut(double speed) {
+		roues.setSpeed(speed);
 		roues.sorienterVersEnBut();
 		roues.avancer();
 		Couleur color;
@@ -241,9 +224,20 @@ public class Robot {
 				palet=false;
 				return null;
 			}else if(color==Couleur.Rouge) {
+				roues.arret();
 				return Couleur.Rouge;
 			}else if(color==Couleur.Jaune) {
-				return Couleur.Jaune;
+				roues.arret();
+				System.out.println(color);
+				if(zone.getColor()==Couleur.Blanc) {
+					pince.ouvrirA();
+					roues.reculer(20.0);
+					pince.fermerA();
+					roues.tourner(115, direction);
+					palet=false;
+					return null;
+				}else if(zone.getColor()==Couleur.Jaune)
+					return Couleur.Jaune;
 			}
 		}
 		return null;

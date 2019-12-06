@@ -4,10 +4,11 @@ import lejos.hardware.BrickFinder;
 import lejos.hardware.Keys;
 import lejos.hardware.ev3.EV3;
 import robotv3.CC.Couleur;
+import robotv3.Routine.ETAT;
 
-public class Routine {
+public class NewRoutine {
 	public enum ETAT {TEST,PREMIER_PALET,ROTATION_RECHERCHE, ATTRAPER_PALET, DEPOSER_PALET_ENBUT, ERROR, PAUSE, FIN;}
-	public static void main(String[] args) {
+	public static void main(String args[]) {
 		Robot cedric = new Robot();
 		boolean start = true;
 		double distance =0;
@@ -48,30 +49,14 @@ public class Routine {
 				case PREMIER_PALET:
 					y=true;
 					cedric.premierPalet();
-					etat=ETAT.DEPOSER_PALET_ENBUT;
+					etat=ETAT.ROTATION_RECHERCHE;
 					System.out.println(etat);
-					while(y) {
-						if(buttons.getButtons()==Keys.ID_ENTER) {
-							y=false;
-						}else if(buttons.getButtons()==Keys.ID_DOWN) {
-							y=false;
-							etat=ETAT.FIN;
-						}
-					}
 					break;
 				case ROTATION_RECHERCHE: 
 					y=true;
 					distance = cedric.rotationRecherche(110.0);
 					etat = ETAT.ATTRAPER_PALET;
 					System.out.println(etat);
-					while(y) {
-						if(buttons.getButtons()==Keys.ID_ENTER) {
-							y=false;
-						}else if(buttons.getButtons()==Keys.ID_DOWN) {
-							y=false;
-							etat=ETAT.FIN;
-						}
-					}
 					break;
 				case ATTRAPER_PALET:
 					y=true;
@@ -81,34 +66,19 @@ public class Routine {
 					else
 						etat=ETAT.ERROR;
 					System.out.println(etat);
-					while(y) {
-						if(buttons.getButtons()==Keys.ID_ENTER) {
-							y=false;
-						}else if(buttons.getButtons()==Keys.ID_DOWN) {
-							y=false;
-							etat=ETAT.FIN;
-						}
-					}
 					break;
 				case DEPOSER_PALET_ENBUT:
 					y=true;
-					color=cedric.deposerPaletEnBut(100.0);
+					color=cedric.deposerPaletEnBut(50.0);
 					if(color==null) {
 						etat=ETAT.ROTATION_RECHERCHE;
 					}else {
 						System.out.println(color);
 						cedric.ajustementDPEB(color);
+						
 						etat=ETAT.DEPOSER_PALET_ENBUT;
 					}
 					System.out.println(etat);
-					while(y) {
-						if(buttons.getButtons()==Keys.ID_ENTER) {
-							y=false;
-						}else if(buttons.getButtons()==Keys.ID_DOWN) {
-							y=false;
-							etat=ETAT.FIN;
-						}
-					}
 					break;
 				case ERROR:
 					y=true;
@@ -116,14 +86,6 @@ public class Routine {
 					cool++;
 					etat=ETAT.ROTATION_RECHERCHE;
 					System.out.println(etat);
-					while(y) {
-						if(buttons.getButtons()==Keys.ID_ENTER) {
-							y=false;
-						}else if(buttons.getButtons()==Keys.ID_DOWN) {
-							y=false;
-							etat=ETAT.FIN;
-						}
-					}
 					break;
 				case FIN:
 					System.out.println(etat);
@@ -142,5 +104,4 @@ public class Routine {
 			}
 		}
 	}
-
 }
