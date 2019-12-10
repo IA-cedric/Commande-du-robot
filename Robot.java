@@ -11,71 +11,115 @@ import lejos.hardware.ev3.EV3;
 import lejos.utility.Delay;
 import robotv33.CC.Couleur;
 
-
+/**
+ * 
+ * Cette classe est utilise pour construire l'ensemble des methodes 
+ * utilisant un ensemble de capteurs et ou moteurs. 
+ * 
+ * 
+ * 
+ * @author benjamin
+ * @see MR,CU,CT,CC,MP
+ * Ce module est utilisé dans les classes Routine et RoutineCompetition
+ */
 
 public class Robot {
+	
 	private MR roues;
 	private CU yeux;
 	private CT contact;
 	private CC zone;
 	private MP pince;
-	private boolean palet;
 	private int direction;
 	private boolean casier;
+	private boolean palet;
 	
+	/**
+	 * Getters de l'attribut palet
+	 * @return palet 
+	 */
+	public boolean isPalet() {
+		return palet;
+	}
+	
+	/**
+	 * Setters de l'attribut palet
+	 * @param palet
+	 */
+	public void setPalet(boolean palet) {
+		this.palet = palet;
+	}
+	
+	/**
+	 * Getters de l'attribut casier
+	 * @return casier
+	 */
 	public boolean isCasier() {
 		return casier;
 	}
 
+	/**
+	 * Setters de l'attribut casier
+	 * @param casier
+	 */
 	public void setCasier(boolean casier) {
 		this.casier = casier;
 	}
-
-	public boolean isPalet() {
-		return palet;
-	}
-
-	public void setPalet(boolean palet) {
-		this.palet = palet;
-	}
-
+	/**
+	 * Getter de l'attribut direction
+	 * 
+	 * @return direction 
+	 */
 	public int getDirection() {
 		return direction;
 	}
 
+	/**
+	 * Setters de l'attribut direction
+	 * @param direction
+	 */
 	public void setDirection(int direction) {
 		this.direction = direction;
 	}
 
+	/**
+	 * Initialise les differents capteurs et moteurs 
+	 * necessaire au fonctionnement du robot. 
+	 * 
+	 */
 	public Robot() {
 		roues = new MR();
 		contact = new CT();
 		pince = new MP();
 		yeux = new CU();
 		zone = new CC();
-		palet=false;
+		palet = false;
 	}
 	
+	/**
+	 * Permet d'utiliser la fonction retablir depuis une autre classe
+	 * 
+	 */
 	public void retablirPince() {
 		pince.retablir();
 	}
-	//tourner pour detect palais
+	
+	/**
+	 * Realise un arc de recherche pour prendre des valeurs 
+	 * grace au capteur a ultrason , il choisis la plus petite superrieur a 32
+	 * et fais une rotation inverse pour se positionner en face de celle ci.
+	 * 
+	 * @return distance 
+	 */
 	public double rotationRecherche() {
 		roues.setSpeed(10);
 		try {
-			//double tab[]=new double[5000];
 			ArrayList<Double> tab = new ArrayList<Double>(0);
-			//instruction de touner
-			
 				roues.tournerRecherche(110, direction);
 				while(roues.getEnMouvement()) {
-					//je met dans mon tableau les différence de distance
 					tab.add((double) yeux.getDistance());
 					Delay.msDelay(10);
-					//mettre un temps de 5millisec pour pas avoir trop de données rajout d'un compteur
 				}
-				//mtn je trie mon tableau en dégageant les valeurs <32,5 car c'est pas 
-				//des palets et je vais vers la plus petite après
 				int indice=-1;
 				double min=1000;
 				for(int j=0; j<tab.size();j++) {
@@ -98,15 +142,11 @@ public class Robot {
 					i++;
 				}
 				f.close();*/
-				//donc indice de tableau par rapport au minimum, le convertir en angle
 				
 				System.out.println("angle : "+angle);
 				System.out.println("Vmin : "+ distance);
 				roues.tourner(105.0-angle,-direction);
 				return distance;
-				//180 car que des demi tour pour détecter palais, 
-				//on lance tourner moteur de l'angle et avancer!
-
 		} catch(IllegalArgumentException i) {
 			System.out.print("probleme de sensor mode");
 			Delay.msDelay(3000);
@@ -116,7 +156,10 @@ public class Robot {
 		
 		
 	}
-	
+	/**
+	 * Permet de marquer le premier palet 
+	 * 
+	 */
 	public void premierPalet() {
 			if (direction==1) {
 				roues.setSpeed(100);
@@ -165,13 +208,21 @@ public class Robot {
 			}
 		}
 
+	/**
+	 * 
+	 * Permet d'aller attraper un palet sans sortir des lignes
+	 * jaunes et rouges et si il sort m'anoeuvre d'esquive pour ne pas
+	 * rater un palet. 
+	 * @param distance
+	 * @return true/false
+	 */
 	public boolean attraperPalet(double distance) {
 		roues.setSpeed(50);
 		roues.avancer(1.3*distance,true);
 		pince.ouvrirA();
 		Couleur color;
 		boolean jaunerouge = false;
-		while(roues.getEnMouvement()) { // temps a se lancer peu poser probleme 
+		while(roues.getEnMouvement()) { 
 			color = zone.getColor();
 			System.out.println(color);
 			if(color==Couleur.Blanc) {
@@ -212,12 +263,21 @@ public class Robot {
 		
 	
 	}
+	/**
+	 * Permet de se remettre a une position central en cas d'echec de
+	 * la recherche 
+	 * @param distance
+	 */
 	public void ajustementErreur(double distance) {
 		roues.reculer(distance);
 		roues.sorienterOpposeEnBut();
 		roues.avancer(50.0, false);
 		roues.tourner(110-roues.getOrientation(), direction);
 	}
+	/**
+	 * Permet de rester entre les lignes jaunes et rouges
+	 * @param c
+	 */
 	public void ajustementDPEB(Couleur c) {
 		int dir=1;
 		if((c==Couleur.Jaune&&casier==true)||c==Couleur.Rouge&&casier==false) {
@@ -228,6 +288,11 @@ public class Robot {
 		roues.tournerSO(80, -dir);
 	}
 	
+	/**
+	 * Permet d'aller marquer un palet une fois qu'il est
+	 * attrapé 
+	 * @return Couleur {null,jaune} 
+	 */
 	public Couleur deposerPaletEnBut() {
 		roues.setSpeed(50);
 		roues.sorienterVersEnBut();
@@ -242,7 +307,7 @@ public class Robot {
 				roues.reculer(20.0);
 				pince.fermerA();
 				roues.tourner(115, direction);
-				palet=false;
+				palet = false;
 				return null;
 			}else if(color==Couleur.Rouge) {
 				return Couleur.Rouge;
@@ -254,7 +319,7 @@ public class Robot {
 					roues.reculer(20.0);
 					pince.fermerA();
 					roues.tourner(115, direction);
-					palet=false;
+					palet = false; 
 					return null;
 				}
 				else {

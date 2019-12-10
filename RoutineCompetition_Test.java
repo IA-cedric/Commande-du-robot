@@ -4,10 +4,16 @@ import lejos.hardware.BrickFinder;
 import lejos.hardware.Keys;
 import lejos.hardware.ev3.EV3;
 import robotv33.CC.Couleur;
-import robotv33.RoutineCompetition_Test.ETAT;
+/**
+ * Cette classe test la RoutineCompetition 
+ * @author benjamin
+ * @see Robot 
+ * 
+ */
 
-public class RoutineCompetition {
+public class RoutineCompetition_Test {
 	public enum ETAT {TEST,PREMIER_PALET,ROTATION_RECHERCHE, ATTRAPER_PALET, DEPOSER_PALET_ENBUT, ERROR, FIN;}
+	
 	public static void main(String[] args) {
 		Robot cedric = new Robot();
 		boolean start = true;
@@ -41,31 +47,35 @@ public class RoutineCompetition {
 		while(routine) {
 			switch(etat) {
 				case PREMIER_PALET:
-					if(buttons.getButtons()==Keys.ID_DOWN) {
-						y=false;
-						etat=ETAT.FIN;
-					}
 					y=true;
 					cedric.premierPalet();
 					etat=ETAT.ROTATION_RECHERCHE;
 					System.out.println(etat);
+					while(y) {
+						if(buttons.getButtons()==Keys.ID_ENTER) {
+							y=false;
+						}else if(buttons.getButtons()==Keys.ID_DOWN) {
+							y=false;
+							etat=ETAT.FIN;
+						}
+					}
 					break;
 				case ROTATION_RECHERCHE: 
-					if(buttons.getButtons()==Keys.ID_DOWN) {
-						y=false;
-						etat=ETAT.FIN;
-					}
 					y=true;
 					distance = cedric.rotationRecherche();
 //					direction=direction*-1;
 					etat = ETAT.ATTRAPER_PALET;
 					System.out.println(etat);
+					while(y) {
+						if(buttons.getButtons()==Keys.ID_ENTER) {
+							y=false;
+						}else if(buttons.getButtons()==Keys.ID_DOWN) {
+							y=false;
+							etat=ETAT.FIN;
+						}
+					}
 					break;
 				case ATTRAPER_PALET:
-					if(buttons.getButtons()==Keys.ID_DOWN) {
-						y=false;
-						etat=ETAT.FIN;
-					}
 					y=true;
 					cedric.setPalet(cedric.attraperPalet(distance));
 					if(cedric.isPalet()) 
@@ -73,12 +83,16 @@ public class RoutineCompetition {
 					else
 						etat=ETAT.ERROR;
 					System.out.println(etat);
+					while(y) {
+						if(buttons.getButtons()==Keys.ID_ENTER) {
+							y=false;
+						}else if(buttons.getButtons()==Keys.ID_DOWN) {
+							y=false;
+							etat=ETAT.FIN;
+						}
+					}
 					break;
 				case DEPOSER_PALET_ENBUT:
-					if(buttons.getButtons()==Keys.ID_DOWN) {
-						y=false;
-						etat=ETAT.FIN;
-					}
 					y=true;
 					color=cedric.deposerPaletEnBut();
 					if(color==null) {
@@ -89,16 +103,28 @@ public class RoutineCompetition {
 						etat=ETAT.DEPOSER_PALET_ENBUT;
 					}
 					System.out.println(etat);
+					while(y) {
+						if(buttons.getButtons()==Keys.ID_ENTER) {
+							y=false;
+						}else if(buttons.getButtons()==Keys.ID_DOWN) {
+							y=false;
+							etat=ETAT.FIN;
+						}
+					}
 					break;
 				case ERROR:
-					if(buttons.getButtons()==Keys.ID_DOWN) {
-						y=false;
-						etat=ETAT.FIN;
-					}
 					y=true;
 					cedric.ajustementErreur(distance);
 					etat=ETAT.ROTATION_RECHERCHE;
 					System.out.println(etat);
+					while(y) {
+						if(buttons.getButtons()==Keys.ID_ENTER) {
+							y=false;
+						}else if(buttons.getButtons()==Keys.ID_DOWN) {
+							y=false;
+							etat=ETAT.FIN;
+						}
+					}
 					break;
 				case FIN:
 					System.out.println(etat);

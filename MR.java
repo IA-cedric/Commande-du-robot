@@ -18,7 +18,7 @@ import lejos.utility.Delay;
 
 /**
  * @author Cédric
- *
+ * Cette classe est utilisé par la classe Robot. 
  */
 public class MR {
 	private static RegulatedMotor mg;
@@ -38,7 +38,7 @@ public class MR {
 	}
 
 	/**
-	 * Constructeur avec choix des Port en paramètre
+	 * Constructeur avec choix des Ports en paramètre
 	 * @param pmg Port Moteur Gauche
 	 * @param pmd Port Moteur Gauche
 	 */
@@ -55,9 +55,13 @@ public class MR {
 	}
 
 	/**
-	 * Le robot avance de d centimetre.
+	 * Le robot avance de d centimetre. Si x vaut true, 
+	 * alors il peut exécuter d'autre instruction pendant son mouvement,
+	 * sinon il doit attendre de finir son mouvement
 	 * 
 	 * @param d distance en centimetre strictement superieur à 0
+	 * @param x booleen
+	 *
 	 */
 	public void avancer(double d, boolean x) {
 		pilot.travel(d,x);
@@ -65,7 +69,7 @@ public class MR {
 
 	/**
 	 * Le robot avance. Il faut créer une condition d'arret avec la methode arret()
-	 * dans une boucle while(this.getEnMouvement)
+	 * dans une boucle while(this.getEnMouvement) par exemple ou après un Delay
 	 */
 	public void avancer() {
 		pilot.forward();
@@ -118,16 +122,34 @@ public class MR {
 		orientation = (orientation + a) % 360;
 	}
 	
-	public void tournerRecherche(double a, int direction) {
-		pilot.rotate(a*direction,true);
-		orientation =(orientation + 360 +a*direction) % 360;
+	/**
+	 * Le robot effectue une rotation de a degrès dans la direction dir tout en pouvant exécuter
+	 * d'autres actions en même temps.
+	 * @param a angle en degrès
+	 * @param dir si vaut -1 rotation à gauche si vaut 1 rotation a droite
+	 */
+	public void tournerRecherche(double a, int dir) {
+		pilot.rotate(a*dir,true);
+		orientation =(orientation + 360 +a*dir) % 360;
 	}
 	
+	/**
+	 * Le robot effectue une rotation de a degrès dans la direction dir sans pouvoir exécuter
+	 * d'autres actions en même temps.
+	 * @param a angle en degrès
+	 * @param dir si vaut -1 rotation à gauche si vaut 1 rotation a droite
+	 */
 	public void tourner(double a, int direction) {
 		pilot.rotate(a*direction,false);
 		orientation =(orientation + 360 +a*direction) % 360;
 	}
 	
+	/**
+	 * Le robot effectue une rotation de a degrès dans la direction dir tout en pouvant exécuter
+	 * d'autres actions en même temps. Celle-ci ne modifie pas l'orientation !
+	 * @param a angle en degrès
+	 * @param dir si vaut -1 rotation à gauche si vaut 1 rotation a droite
+	 */
 	public void tournerSO(double a, int direction) {
 		pilot.rotate(a*direction,false);
 	}
@@ -150,55 +172,21 @@ public class MR {
 	public void sorienterVersEnBut() {
 		if (orientation > 180.0)
 			tournerD(360 - orientation);
-		else if (orientation <= 180.0)
+		else
 			tournerG(orientation);
 		orientation = 0.0;
 	}
-	
+	/**
+	 * Le robot effectue un virage pour reprendre une orientation opposée à celle initiale. Le robot
+	 * fera le virage le plus court possible (vers la droite ou vers la gauche), si
+	 * celui-ci est bien orienté il ne fait rien.
+	 */
 	public void sorienterOpposeEnBut() {
-		if(orientation > 180.0) {
+		if(orientation > 180.0) 
 			tournerG(orientation-180);
-		}else {
+		else 
 			tournerD(180-orientation);
-		}
-	}
-
-	/**
-	 * Le robot effectue un demi-tour par la gauche.
-	 */
-	public void demiTourG() {
-		tournerG(180);
-	}
-
-	/**
-	 * Le robot effectue un demi-tour par la droite.
-	 */
-	public void demiTourD() {
-		tournerD(180);
-	}
-
-	/**
-	 * Le robot effectue un tour par la gauche.
-	 */
-	public void tourG() {
-		tournerG(360);
-	}
-
-	/**
-	 * Le robot effectue un tour par la droite.
-	 */
-	public void tourD() {
-		pilot.rotate(355);
-	}
-	
-	public void esquiveD() {
-		pilot.arc(50, 15);
-		pilot.arc(-50, 15);
-	}
-	
-	public void esquiveG() {
-		pilot.arc(-50, 15);
-		pilot.arc(50, 15);
+		
 	}
 
 	/**
