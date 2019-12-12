@@ -1,50 +1,41 @@
-package robotv33;
+package robotV2;
 
 import lejos.hardware.ev3.LocalEV3;
+
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.hardware.port.MotorPort;
 import lejos.hardware.port.Port;
 import lejos.robotics.RegulatedMotor;
 import lejos.utility.Delay;
-/** 
- * 
- * @author benjamin
- * Cette classe gere toutes les fonctions associé a l'utilisation 
- * des pinces 
- * 
- *Ce module est utlisé par : la classe robot 
- */
 
+
+/**
+ * Cette classe permet d utiliser les pinces du robot pour a terme attraper des objets (palets en l occurence)
+ */
 public class MP{
 	private RegulatedMotor m3;
-	
+
+
 	/**
-	   * Iniatilise une pince pour un port donnée à une vitesse max 
-	   * 
-	   * 
-	   * 
-	   */
+	 *  Constructeur par dÃ©faut, initialise le port D pour les pinces 
+	 */
 	public MP(){
 		this(LocalEV3.get().getPort("D"));
 	}
-	
-	
+
 	/**
-	   * Iniatilise une pince pour un port donnée à 80% de la vitesse max
-	   * 
-	   * 
-	   * 
-	   */
+	 * Constructeur avec parametre, initialise le port en fonction de celui donne avec une vitesse max
+	 * @param pmp correspond au capteur correspondant
+	 */
 	public MP(Port pmp) {
 		m3 = new EV3LargeRegulatedMotor(pmp);
 		m3.setSpeed((int) (m3.getMaxSpeed()*0.8));
 	}
-	
-	 /**
-	   * Return true si la pince est bloqué dans une position
-	   * 
-	   * @return true/false
-	   */
+
+	/**
+	 * Permet de savoir si la pince est bloquee dans une position
+	 * @return vrai si elle est bloquee, faux sinon
+	 */
 	public boolean tachobug() {
 		boolean res ; 
 		int j = m3.getTachoCount();
@@ -57,19 +48,19 @@ public class MP{
 		}
 		return res;
 	}
-	
+
+
 	/**
-	   * retablis une ouverture de la pince correct  
-	   * En passant par la valeur d'ouverture maximale
-	   */
+	 * Permet d'ouvrir la pince (retablir son etat initial) en passant par la valeur d ouverture maximale
+	 */
 	public  void retablir() {
 		ouvrirZ();
 		fermerZ();
 	}
-	
+
 	/**
-	   * Ouvre la pince de 3500 tour
-	   */
+	 * ouvre la pince au maximum
+	 */
 	public void ouvrirZ() {
 		m3.resetTachoCount();
 		while(m3.getTachoCount() < 3500) {
@@ -81,12 +72,12 @@ public class MP{
 			}
 		}
 		m3.stop();
-		
+
 	}
-	
+
 	/**
-	   * Ferme la pince de 2900 tour
-	   */
+	 * ferme la pince de 2900 tours de moteur
+	 */
 	public void fermerZ() {
 		m3.resetTachoCount();
 		while(m3.getTachoCount() > -2900) {
@@ -99,78 +90,50 @@ public class MP{
 		}
 		m3.stop();
 	}
-	
+
+
 
 	/**
-	   * ouvre la pince de 800 tour
-	   */
+	 * ouvre la pince de 500 tours (taille palet)
+	 */
 	public void ouvrirA() {
 		m3.resetTachoCount();
-		while(m3.getTachoCount() < 800) {
+		while(m3.getTachoCount() < 500) {
 			m3.forward();
+			System.out.println(m3.getTachoCount());
 			if(tachobug() == true) {
 				m3.stop();
 				break;
 			}
 		}
+		System.out.println(m3.getTachoCount());
 		m3.stop();
 	}
-	
-	
-	 /**
-	   * ferme la pince de 820 tour
-	   */
-	public void fermerA() {
-		m3.resetTachoCount();
-		while(m3.getTachoCount() > -820) {
-			m3.backward();
-			if(tachobug() == true) {
-				m3.stop();
-				break;
-			}
-			
-		}
-		m3.stop();
-	}
-	
-	 /**
-	   * ferme la pince de 750 tour
-	   */
-	public void fermerPP() {
-		m3.resetTachoCount();
-		while(m3.getTachoCount() > -750) {
-			m3.backward();
-			if(tachobug() == true) {
-				m3.stop();
-				break;
-			}
-			
-		}
-		m3.stop();
-	}
-	
+
 	/**
-	   * ouvre la pince de 700 tour
-	   */
-	public void ouvrirPP() {
+	 * ferme la pince de 500 tours (taille palet)
+	 */
+	public void fermerA() {
+	
 		m3.resetTachoCount();
-		while(m3.getTachoCount() < 700) {
-			m3.forward();
+		while(m3.getTachoCount() > -490) {
+			m3.backward();
+			System.out.println(m3.getTachoCount());
 			if(tachobug() == true) {
 				m3.stop();
 				break;
 			}
+
 		}
+		System.out.println(m3.getTachoCount());
 		m3.stop();
 	}
-	
-	 /**
-	   * Renvoie le compte de tour de la pince
-	   * 
-	   * @return tachometer count 
-	   */
+
+	/**
+	 * Permet de compter le compte de tours de la pince
+	 * @return tachometer count soit le nombre de tours
+	 */
 	public int tacho() {
 		return m3.getTachoCount();
 	}
-	
 }

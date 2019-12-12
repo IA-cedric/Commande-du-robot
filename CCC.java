@@ -1,4 +1,4 @@
-package robotv33;
+package robotV2;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -12,15 +12,20 @@ import lejos.robotics.Color;
 import lejos.robotics.SampleProvider;
 import lejos.robotics.filter.MeanFilter;
 
+/**
+ * Cette classe permet de créer un fichier txt comportant les donnees de calibration du capteur couleur.
+ * @see robotV2.CC
+ */
 public class CCC {
 	
 		SampleProvider average;
-		public static void main(String []args) {
-			CCC c = new CCC();
-		}
+
 
 	//Constructeur de calibration des couleurs :
-		
+		/**
+		 * constructeur sans paramètre du capteur couleur. Initialise le port et calibre les couleurs, qu'il stocke dans
+		 * un fichier texte via l'utilisation de properties.
+		 */
 		public CCC() { 
 
 			//initialisation du capteur couleur
